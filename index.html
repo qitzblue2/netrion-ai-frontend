@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netrion AI Dashboard</title>
+    <style>
+        body { 
+            background: #0f0f11; 
+            color: #00e5ff; 
+            font-family: monospace; 
+            padding: 30px; 
+        }
+        .box { 
+            background: #17171e; 
+            border: 1px solid #00e5ff; 
+            padding: 20px; 
+            height: 350px; 
+            overflow-y: auto; 
+            margin: 20px 0; 
+            border-radius: 8px;
+            white-space: pre-wrap;
+        }
+        input, button { 
+            padding: 12px; 
+            background: #222; 
+            border: 1px solid #00e5ff; 
+            color: #00e5ff; 
+            font-family: monospace; 
+            border-radius: 4px;
+        }
+        button { 
+            cursor: pointer; 
+            font-weight: bold;
+        }
+        button:hover { 
+            background: #00e5ff; 
+            color: #0f0f11; 
+        }
+    </style>
+</head>
+<body>
+    <h1>⚡ Netrion AI Control Center</h1>
+    <div class="box" id="terminal">🤖 Awaiting coding commands...</div>
+    <input type="text" id="obj" style="width: 50%;" placeholder="Ask Netrion to code something...">
+    <button onclick="deployNetrion()">Execute Agent</button>
+
+    <script>
+        async function deployNetrion() {
+            const terminal = document.getElementById("terminal");
+            const objective = document.getElementById("obj").value;
+            
+            if (!objective) {
+                alert("Please enter a coding objective for Netrion AI.");
+                return;
+            }
+
+            terminal.innerHTML = "🚀 Pinging Render Backend Server... Netrion AI waking up...\n(Note: If the backend has been idle, this may take up to a minute to spin up.)";
+            
+            // Your live Render server URL
+            const BACKEND_URL = "https://netrion-ai-backend.onrender.com/run-netrion"; 
+
+            try {
+                const res = await fetch(BACKEND_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ objective: objective })
+                });
+                
+                if (!res.ok) {
+                    throw new Error(`Server responded with status ${res.status}`);
+                }
+
+                const data = await res.json();
+                terminal.innerHTML = data.logs.join("\n");
+            } catch(e) {
+                terminal.innerHTML += `<br><br>❌ Error talking to backend: ${e.message}<br>Verify your Render logs to ensure the server is fully running.`;
+            }
+        }
+    </script>
+</body>
+</html>
